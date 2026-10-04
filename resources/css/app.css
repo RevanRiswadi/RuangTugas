@@ -1,0 +1,630 @@
+@import "tailwindcss";
+
+@source "../views/**/*.blade.php";
+@source "../js/**/*.js";
+
+@theme {
+    --color-pine-950: var(--text-heading);
+    --color-pine-800: var(--accent-strong);
+    --color-clay-700: var(--danger);
+    --color-paper-100: var(--page);
+    --color-ink-900: var(--text-heading);
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* DESIGN.md §1 — high-density, depth via color, mono data, single accent (emerald), no slop */
+
+/* ─── 2.1 Light Mode ─────────────────────────────────────────────────────── */
+:root {
+    color-scheme: light;
+    --brand-mark-text: #047857;
+
+    /* Surfaces */
+    --page:           #eef2f7;
+    --surface:        #ffffff;
+    --surface-muted:  #f1f5f9;
+
+    /* Typography */
+    --text-heading:   #0f172a;
+    --text-primary:   #1e293b;
+    --text-muted:     #64748b;
+
+    /* Borders */
+    --border:         #e2e8f0;
+    --border-strong:  #cbd5e1;
+    --border-hover:   #94a3b8;
+
+    /* Accent — Emerald */
+    --accent:         #047857;
+    --accent-strong:  #065f46;
+    --accent-soft:    #ecfdf5;
+    --accent-border:  #059669;
+    --accent-contrast:#ffffff;
+
+    /* Danger */
+    --danger: #b91c1c;
+
+    /* Elevation */
+    --card-shadow: 0 1px 3px rgb(0 0 0 / 6%), 0 1px 2px -1px rgb(0 0 0 / 4%);
+
+    /* Focus */
+    --focus-color: #047857;
+    --focus-ring:  0 0 0 3px rgb(4 120 87 / 18%);
+
+    /* Sidebar */
+    --sidebar:        #0f172a;
+    --sidebar-active: #1e293b;
+
+    /* Badge — Priority */
+    --badge-high-bg:       #fef2f2;
+    --badge-high-text:     #991b1b;
+    --badge-high-border:   #fecaca;
+    --badge-medium-bg:     #fffbeb;
+    --badge-medium-text:   #92400e;
+    --badge-medium-border: #fde68a;
+    --badge-low-bg:        #f8fafc;
+    --badge-low-text:      #475569;
+    --badge-low-border:    #e2e8f0;
+
+    /* Badge — Status */
+    --badge-pending-bg:      #f8fafc;
+    --badge-pending-text:    #475569;
+    --badge-pending-border:  #e2e8f0;
+    --badge-progress-bg:     #eff6ff;
+    --badge-progress-text:   #1d4ed8;
+    --badge-progress-border: #bfdbfe;
+    --badge-done-bg:         #ecfdf5;
+    --badge-done-text:       #065f46;
+    --badge-done-border:     #a7f3d0;
+}
+
+/* ─── 2.2 Dark Mode ──────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+    color-scheme: dark;
+    --brand-mark-text: #34d399;
+
+    /* Surfaces */
+    --page:           #0b131e;
+    --surface:        #0f1e2e;
+    --surface-muted:  #162236;
+
+    /* Typography */
+    --text-heading:   #f8fafc;
+    --text-primary:   #e2e8f0;
+    --text-muted:     #94a3b8;
+
+    /* Borders */
+    --border:         #1e3148;
+    --border-strong:  #334155;
+    --border-hover:   #3d5a78;
+
+    /* Accent — Emerald terang */
+    --accent:         #34d399;
+    --accent-strong:  #059669;
+    --accent-soft:    #064e3b;
+    --accent-border:  #34d399;
+    --accent-contrast:#052e24;
+
+    /* Danger */
+    --danger: #f87171;
+
+    /* Elevation */
+    --card-shadow: 0 1px 3px rgb(0 0 0 / 40%), 0 1px 2px -1px rgb(0 0 0 / 30%);
+
+    /* Focus */
+    --focus-color: #34d399;
+    --focus-ring:  0 0 0 3px rgb(52 211 153 / 22%);
+
+    /* Sidebar */
+    --sidebar:        #050c18;
+    --sidebar-active: #162236;
+
+    /* Badge — Priority */
+    --badge-high-bg:       #2d0a0a;
+    --badge-high-text:     #fca5a5;
+    --badge-high-border:   #7f1d1d;
+    --badge-medium-bg:     #2d1a04;
+    --badge-medium-text:   #fcd34d;
+    --badge-medium-border: #78350f;
+    --badge-low-bg:        #162236;
+    --badge-low-text:      #94a3b8;
+    --badge-low-border:    #1e3148;
+
+    /* Badge — Status */
+    --badge-pending-bg:      #162236;
+    --badge-pending-text:    #94a3b8;
+    --badge-pending-border:  #1e3148;
+    --badge-progress-bg:     #0d1f40;
+    --badge-progress-text:   #93c5fd;
+    --badge-progress-border: #1e3a8a;
+    --badge-done-bg:         #052e24;
+    --badge-done-text:       #6ee7b7;
+    --badge-done-border:     #065f46;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+body {
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    transition: background-color 180ms ease, color 180ms ease;
+}
+
+button, a, input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── Focus ──────────────────────────────────────────────────────────────── */
+:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+}
+
+.sidebar-link:focus-visible {
+    --focus-color: #ffffff;
+}
+
+/* ─── 3.4 Field Control ─────────────────────────────────────────────────── */
+.field-control {
+    min-height: 2.75rem;
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    padding: 0.625rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.field-control::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.field-control:focus {
+    outline: none;
+    border-color: var(--accent-border);
+    box-shadow: var(--focus-ring);
+}
+
+.form-grid > * {
+    min-width: 0;
+}
+
+/* ─── 3.5 Button ─────────────────────────────────────────────────────────── */
+.button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.625rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.button:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+.button:disabled {
+    cursor: wait;
+    opacity: 0.75;
+}
+
+.button-primary {
+    background: var(--accent);
+    color: var(--accent-contrast);
+}
+
+.button-primary:hover {
+    background: var(--accent-strong);
+}
+
+.button-secondary {
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.button-secondary:hover {
+    border-color: var(--border-hover);
+    background: var(--surface-muted);
+}
+
+/* ─── Links ──────────────────────────────────────────────────────────────── */
+.text-link {
+    color: var(--accent-strong);
+    text-decoration: none;
+    text-underline-offset: 0.2em;
+    transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.text-link:hover {
+    color: var(--text-heading);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor, transparent 55%);
+}
+
+.task-title-link {
+    color: var(--text-heading);
+    text-decoration: none;
+    text-underline-offset: 0.2em;
+}
+
+.task-title-link:hover {
+    color: var(--accent-strong);
+    text-decoration: underline;
+}
+
+/* ─── 3.2 Surface Card ───────────────────────────────────────────────────── */
+.surface-card {
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    box-shadow: var(--card-shadow);
+    transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+/* ─── 3.3 Summary Strip ──────────────────────────────────────────────────── */
+.summary-strip {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    box-shadow: var(--card-shadow);
+}
+
+.summary-stat {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 0.875rem;
+}
+
+.summary-stat--accent {
+    border-left: 3px solid var(--accent-border);
+    padding-left: calc(0.875rem - 3px);
+}
+
+/* ─── Row states ─────────────────────────────────────────────────────────── */
+.dashboard-task-row,
+.project-list-row {
+    border: 1px solid transparent;
+    border-radius: 0.625rem;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.dashboard-task-row:hover,
+.project-list-row:hover {
+    border-color: var(--border-hover);
+    background: var(--surface-muted);
+}
+
+/* ─── 3.6 Task Table ─────────────────────────────────────────────────────── */
+.task-table {
+    font-size: 0.8125rem;
+}
+
+.task-table th {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface-muted);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.task-table-row {
+    transition: background-color 120ms ease;
+}
+
+.task-table-row:hover {
+    background-color: var(--surface-muted);
+}
+
+.task-table th[scope="row"] {
+    background: transparent;
+    font-weight: 400;
+    text-transform: none;
+    user-select: auto;
+}
+
+/* ─── 3.7 List Cards ─────────────────────────────────────────────────────── */
+.task-list-card,
+.project-list-card {
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.task-list-card:hover,
+.project-list-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+.empty-state-icon {
+    background: var(--surface-muted);
+    color: var(--text-muted);
+}
+
+/* ─── Sidebar ────────────────────────────────────────────────────────────── */
+aside .sidebar-link[aria-current="page"],
+aside .sidebar-link:hover,
+aside [data-theme-toggle]:hover {
+    background: var(--sidebar-active);
+}
+
+header .sidebar-link[aria-current="page"] {
+    background: var(--surface-muted);
+    color: var(--text-primary);
+}
+
+.sidebar-link,
+aside [data-theme-toggle],
+header {
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+/* ─── Table base hover ───────────────────────────────────────────────────── */
+tbody tr {
+    transition: background-color 140ms ease;
+}
+
+tbody tr:hover {
+    background-color: var(--surface-muted);
+}
+
+/* ─── 3.1 Badge ──────────────────────────────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    padding: 0.125rem 0.4375rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.1rem;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.badge-priority-high {
+    background: var(--badge-high-bg);
+    color: var(--badge-high-text);
+    border-color: var(--badge-high-border);
+}
+
+.badge-priority-medium {
+    background: var(--badge-medium-bg);
+    color: var(--badge-medium-text);
+    border-color: var(--badge-medium-border);
+}
+
+.badge-priority-low {
+    background: var(--badge-low-bg);
+    color: var(--badge-low-text);
+    border-color: var(--badge-low-border);
+}
+
+.badge-status-pending {
+    background: var(--badge-pending-bg);
+    color: var(--badge-pending-text);
+    border-color: var(--badge-pending-border);
+}
+
+.badge-status-progress {
+    background: var(--badge-progress-bg);
+    color: var(--badge-progress-text);
+    border-color: var(--badge-progress-border);
+}
+
+.badge-status-done {
+    background: var(--badge-done-bg);
+    color: var(--badge-done-text);
+    border-color: var(--badge-done-border);
+}
+
+/* ─── Tailwind class overrides (token mapping) ───────────────────────────── */
+[class~="text-slate-600"] {
+    color: var(--text-muted);
+}
+
+[class~="text-ink-900"] {
+    color: var(--text-heading);
+}
+
+[class~="bg-white"] {
+    background-color: var(--surface);
+}
+
+[class~="bg-slate-50"],
+[class~="bg-slate-100"] {
+    background-color: var(--surface-muted);
+}
+
+[class~="bg-pine-950"] {
+    background-color: var(--sidebar);
+}
+
+[class~="bg-pine-800"] {
+    background-color: var(--sidebar-active);
+}
+
+[class~="text-white"] {
+    color: #ffffff;
+}
+
+/* ─── Pagination ─────────────────────────────────────────────────────────── */
+nav[aria-label="Pagination Navigation"] a,
+nav[aria-label="Pagination Navigation"] span {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+}
+
+nav[aria-label="Pagination Navigation"] a {
+    color: var(--text-primary);
+}
+
+nav[aria-label="Pagination Navigation"] [aria-current="page"] span {
+    background-color: var(--accent-soft);
+    color: var(--accent-strong);
+}
+
+@media (min-width: 640px) {
+    .summary-stat {
+        align-items: baseline;
+        flex-direction: row;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .summary-stat--accent {
+        padding-left: calc(1rem - 3px);
+    }
+}
+
+.dashboard-page {
+    isolation: isolate;
+    position: relative;
+    padding-block: 1rem;
+}
+
+.dashboard-page::before {
+    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 10%, transparent), transparent 72%);
+    content: "";
+    height: 18rem;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateY(-28%);
+    width: min(28rem, 100%);
+    z-index: -1;
+}
+
+.dashboard-status-dot {
+    background: var(--accent);
+    border: 2px solid var(--surface);
+    border-radius: 9999px;
+    height: 0.75rem;
+    width: 0.75rem;
+}
+
+.brand-mark {
+    color: var(--brand-mark-text);
+}
+
+aside .brand-mark {
+    color: #34d399;
+}
+
+.dashboard-enter {
+    animation: dashboard-enter 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.dashboard-enter--1 {
+    animation-delay: 35ms;
+}
+
+.dashboard-enter--2 {
+    animation-delay: 90ms;
+}
+
+.dashboard-enter--3 {
+    animation-delay: 145ms;
+}
+
+.dashboard-enter--4 {
+    animation-delay: 200ms;
+}
+
+@keyframes dashboard-enter {
+    from {
+        opacity: 0;
+        translate: 0 8px;
+    }
+
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+.dashboard-card {
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.project-progress-track {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    height: 0.375rem;
+    overflow: hidden;
+    width: 100%;
+}
+
+.project-progress-fill {
+    background: var(--accent);
+    border-radius: inherit;
+    display: block;
+    height: 100%;
+    transition: width 240ms ease;
+    width: var(--progress);
+}
+
+.project-list-row--dashboard {
+    transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.dashboard-table-scroll:focus-visible {
+    border-radius: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .dashboard-page {
+        padding-block: 1.25rem;
+    }
+}
+
+@media (hover: hover) {
+    .dashboard-card:hover {
+        border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+        box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+        transform: translateY(-2px);
+    }
+
+    .project-list-row--dashboard:hover {
+        border-color: color-mix(in srgb, var(--accent) 46%, var(--border));
+        box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 10%, transparent);
+        transform: translateY(-2px);
+    }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transform: none !important;
+    }
+
+    .dashboard-enter {
+        animation: none;
+        translate: none;
+    }
+}
