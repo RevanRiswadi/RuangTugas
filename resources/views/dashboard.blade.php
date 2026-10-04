@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Ringkasan')
-@section('default-theme', 'dark')
+@section('default-theme', 'light')
 @section('main-class', 'dashboard-page')
 
 @section('content')
@@ -21,27 +21,60 @@
     </div>
 
     {{-- Summary strip — 4 kolom full-width --}}
-    <dl class="summary-strip dashboard-card dashboard-enter dashboard-enter--2 mt-4 grid grid-cols-2 divide-x divide-[var(--border)] sm:grid-cols-4">
+    <dl class="summary-strip dashboard-card dashboard-enter dashboard-enter--2 mt-4 grid grid-cols-2 divide-x divide-y divide-[var(--border)] sm:grid-cols-4 sm:divide-y-0">
         <div class="summary-stat summary-stat--accent">
             <dt class="text-xs font-medium text-slate-600">Proyek aktif</dt>
-            <dd class="font-mono text-2xl font-semibold tabular-nums tracking-tight text-ink-900">{{ $activeProjectCount }}</dd>
+            <dd class="font-mono text-xl font-bold tabular-nums tracking-tight text-ink-900">{{ $activeProjectCount }}</dd>
         </div>
         <div class="summary-stat">
             <dt class="text-xs font-medium text-slate-600">Tugas belum selesai</dt>
-            <dd class="font-mono text-2xl font-semibold tabular-nums tracking-tight text-ink-900">{{ $openTaskCount }}</dd>
+            <dd class="font-mono text-xl font-bold tabular-nums tracking-tight text-ink-900">{{ $openTaskCount }}</dd>
         </div>
         <div class="summary-stat">
             <dt class="text-xs font-medium text-slate-600">Tugas dalam daftar</dt>
-            <dd class="font-mono text-2xl font-semibold tabular-nums tracking-tight text-ink-900">{{ $upcomingTasks->count() }}</dd>
+            <dd class="font-mono text-xl font-bold tabular-nums tracking-tight text-ink-900">{{ $upcomingTasks->count() }}</dd>
         </div>
         <div class="summary-stat">
             <dt class="text-xs font-medium text-slate-600">Proyek total</dt>
-            <dd class="font-mono text-2xl font-semibold tabular-nums tracking-tight text-ink-900">{{ $projectCount }}</dd>
+            <dd class="font-mono text-xl font-bold tabular-nums tracking-tight text-ink-900">{{ $projectCount }}</dd>
         </div>
     </dl>
 
+    {{-- Activity streak — 7 hari terakhir (data riil dari deadline tugas) --}}
+    <div class="streak-widget dashboard-enter dashboard-enter--2 mt-3">
+        <div class="streak-header">
+            <span class="streak-title">Aktivitas 7 Hari</span>
+            <span class="streak-sub">Tugas dengan deadline minggu ini</span>
+        </div>
+        <div class="streak-grid" aria-label="Aktivitas tugas 7 hari terakhir">
+            @foreach ($weeklyActivity as $date => $count)
+                @php
+                    $level = match(true) {
+                        $count === 0 => 0,
+                        $count === 1 => 1,
+                        $count <= 3  => 2,
+                        default      => 3,
+                    };
+                    $dayLabel = \Carbon\Carbon::parse($date)->locale('id')->isoFormat('ddd D/M');
+                @endphp
+                <div class="streak-cell streak-cell--{{ $level }}"
+                     title="{{ $dayLabel }}: {{ $count }} tugas"
+                     aria-label="{{ $dayLabel }}, {{ $count }} tugas">
+                </div>
+            @endforeach
+        </div>
+        <div class="streak-legend">
+            <span>Sedikit</span>
+            <span class="streak-cell-sample streak-cell--0"></span>
+            <span class="streak-cell-sample streak-cell--1"></span>
+            <span class="streak-cell-sample streak-cell--2"></span>
+            <span class="streak-cell-sample streak-cell--3"></span>
+            <span>Banyak</span>
+        </div>
+    </div>
+
     {{-- Main grid: dua kolom tugas dan satu kolom proyek pada desktop. --}}
-    <div class="mt-5 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+    <div class="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
 
         {{-- Tugas mendatang — 2/3 lebar --}}
         <section aria-labelledby="tugas-mendatang" class="surface-card dashboard-card dashboard-enter dashboard-enter--3 min-w-0 lg:col-span-2">
@@ -55,7 +88,7 @@
 
             @if ($upcomingTasks->isEmpty())
                 <div class="flex flex-col items-center px-4 py-10 text-center">
-                    <span class="empty-state-icon mb-3 flex h-10 w-10 items-center justify-center rounded-xl" aria-hidden="true">
+                    <span class="empty-state-icon mb-3 flex h-10 w-10 items-center justify-center rounded-md" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="5" y="4" width="14" height="17" rx="2"></rect>
                             <path d="M9 4.5h6M9 10h6M9 14h6M9 18h3"></path>
@@ -66,15 +99,49 @@
                     <a href="{{ route('tasks.create') }}" class="button button-primary mt-4">Tambah tugas</a>
                 </div>
             @else
-                {{-- Tabel tugas --}}
-                <div class="dashboard-table-scroll overflow-x-auto" tabindex="0" aria-label="Tabel tugas mendatang, geser secara horizontal untuk melihat seluruh kolom">
+                {{-- Mobile card list (< md) --}}
+                <ul class="task-mobile-list divide-y divide-[var(--border)] md:hidden">
+                    @foreach ($upcomingTasks as $task)
+                        <li class="task-mobile-card px-4 py-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <a href="{{ route('tasks.edit', $task) }}" class="task-title-link block truncate text-sm font-semibold text-ink-900">{{ $task->judul_tugas }}</a>
+                                    <p class="mt-0.5 truncate text-xs text-slate-600">{{ $task->project->nama_proyek }}</p>
+                                </div>
+                                <span @class([
+                                    'badge shrink-0',
+                                    'badge-priority-high'   => $task->prioritas === 'Tinggi',
+                                    'badge-priority-medium' => $task->prioritas === 'Sedang',
+                                    'badge-priority-low'    => $task->prioritas === 'Rendah',
+                                ])>{{ $task->prioritas }}</span>
+                            </div>
+                            <div class="mt-2 flex items-center justify-between gap-2">
+                                <time datetime="{{ $task->deadline->format('Y-m-d') }}" class="font-mono text-xs tabular-nums text-slate-600">{{ $task->deadline->format('d/m/Y') }}</time>
+                                <span @class([
+                                    'badge',
+                                    'badge-status-pending'  => $task->status === 'Belum Dimulai',
+                                    'badge-status-progress' => $task->status === 'Dalam Proses',
+                                    'badge-status-done'     => $task->status === 'Selesai',
+                                ])>
+                                    @if ($task->status === 'Dalam Proses')
+                                        <span class="live-dot" aria-hidden="true"></span>
+                                    @endif
+                                    {{ $task->status }}
+                                </span>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+
+                {{-- Desktop table (>= md) --}}
+                <div class="dashboard-table-scroll hidden overflow-x-auto md:block" tabindex="0" aria-label="Tabel tugas mendatang">
                     <table class="task-table w-full min-w-[520px] border-collapse text-sm">
                         <thead>
                             <tr class="border-b border-[var(--border)] bg-[var(--surface-muted)]">
                                 <th scope="col" class="w-[90px] px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600 sm:px-5">Deadline</th>
                                 <th scope="col" class="px-2 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600">Tugas</th>
                                 <th scope="col" class="w-[88px] px-2 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600">Prioritas</th>
-                                <th scope="col" class="w-[100px] px-2 py-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600 sm:pr-5">Status</th>
+                                <th scope="col" class="w-[110px] px-2 py-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600 sm:pr-5">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[var(--border)]">
@@ -92,18 +159,23 @@
                                     <td class="px-2 py-2.5 align-middle">
                                         <span @class([
                                             'badge',
-                                            'badge-priority-high' => $task->prioritas === 'Tinggi',
+                                            'badge-priority-high'   => $task->prioritas === 'Tinggi',
                                             'badge-priority-medium' => $task->prioritas === 'Sedang',
-                                            'badge-priority-low' => $task->prioritas === 'Rendah',
+                                            'badge-priority-low'    => $task->prioritas === 'Rendah',
                                         ])>{{ $task->prioritas }}</span>
                                     </td>
                                     <td class="px-2 py-2.5 pr-4 align-middle sm:pr-5">
                                         <span @class([
                                             'badge',
-                                            'badge-status-pending' => $task->status === 'Belum Dimulai',
+                                            'badge-status-pending'  => $task->status === 'Belum Dimulai',
                                             'badge-status-progress' => $task->status === 'Dalam Proses',
-                                            'badge-status-done' => $task->status === 'Selesai',
-                                        ])>{{ $task->status }}</span>
+                                            'badge-status-done'     => $task->status === 'Selesai',
+                                        ])>
+                                            @if ($task->status === 'Dalam Proses')
+                                                <span class="live-dot" aria-hidden="true"></span>
+                                            @endif
+                                            {{ $task->status }}
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach
@@ -125,7 +197,7 @@
 
             @if ($activeProjects->isEmpty())
                 <div class="flex flex-col items-center px-4 py-10 text-center">
-                    <span class="empty-state-icon mb-3 flex h-10 w-10 items-center justify-center rounded-xl" aria-hidden="true">
+                    <span class="empty-state-icon mb-3 flex h-10 w-10 items-center justify-center rounded-md" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 7.5h7l2 2h9v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                             <path d="M3 7.5v-2a2 2 0 0 1 2-2h4l2 2h4"></path>

@@ -11,6 +11,18 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
+        // Build 7-day activity map: count tasks with deadline in each of the last 7 days.
+        $days = collect(range(6, 0))->map(fn (int $i) => today()->subDays($i)->toDateString());
+        $tasksByDay = Task::query()
+            ->whereDate('deadline', '>=', today()->subDays(6))
+            ->whereDate('deadline', '<=', today())
+            ->selectRaw('DATE(deadline) as day, COUNT(*) as total')
+            ->groupByRaw('DATE(deadline)')
+            ->pluck('total', 'day');
+        $weeklyActivity = $days->mapWithKeys(fn (string $date) => [
+            $date => (int) ($tasksByDay[$date] ?? 0),
+        ]);
+
         return view('dashboard', [
             'activeProjects' => Project::query()
                 ->where('status', 'Aktif')
@@ -30,6 +42,7 @@ class DashboardController extends Controller
                 ->orderBy('deadline')
                 ->limit(8)
                 ->get(),
+            'weeklyActivity' => $weeklyActivity,
         ]);
     }
 }
